@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+
+    /* VARIABLES */
+    :root {
+        --primary: #ffffff;
+        --accent: #e0e0e0;
+        --success: #4ade80;
+        --warning: #fbbf24;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --bg-dark: #000000;
+        --bg-deep: #0a0a0a;
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --hover-bg: rgba(255, 255, 255, 0.15);
+        --text-muted: #888;
+        --text-color: #ffffff;
+        --border-color: #333;
+        --shadow-glow: rgba(255, 255, 255, 0.2);
+    }
+
+    /* CONTENEDOR */
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    /* TÍTULO */
+    h1 {
+        font-family: 'Satisfy', cursive;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 40px;
+        color: var(--primary);
+        text-shadow: 
+            0 0 15px rgba(255, 255, 255, 0.6), 
+            0 0 30px rgba(255, 255, 255, 0.4),
+            0 0 45px rgba(255, 255, 255, 0.2);
+        animation: titleGlow 4s ease-in-out infinite alternate;
+        letter-spacing: 1px;
+    }
+
+    /* LISTA DE DOCUMENTOS */
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 40px 0;
+    }
+
+    /* CADA DOCUMENTO */
+    li {
+        background: var(--glass-bg);
+        margin-bottom: 20px;
+        padding: 25px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        font-family: monospace;
+        animation: slideInLeft 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+
+    li:nth-child(1) { animation-delay: 0.1s; }
+    li:nth-child(2) { animation-delay: 0.2s; }
+    li:nth-child(3) { animation-delay: 0.3s; }
+    li:nth-child(4) { animation-delay: 0.4s; }
+    li:nth-child(5) { animation-delay: 0.5s; }
+
+    li::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+        border-radius: 20px;
+        pointer-events: none;
+    }
+
+    li:hover {
+        transform: translateY(-5px) scale(1.02);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.3),
+            0 0 25px rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* TÍTULO DEL DOCUMENTO */
+    strong {
+        color: var(--primary);
+        font-size: 1.1rem;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    /* ENLACES DE ARCHIVO */
+    a {
+        color: #60a5fa;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        padding: 5px 10px;
+        border-radius: 8px;
+        display: inline-block;
+        margin: 5px 0;
+        background: rgba(96, 165, 250, 0.1);
+        border: 1px solid rgba(96, 165, 250, 0.2);
+    }
+
+    a:hover {
+        color: #93c5fd;
+        background: rgba(96, 165, 250, 0.2);
+        border-color: rgba(96, 165, 250, 0.4);
+        text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        transform: translateY(-1px);
+    }
+
+    /* INFORMACIÓN DEL ESTADO */
+    .documento-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+        align-items: center;
+    }
+
+    .estado-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .estado-aprobado {
+        background: linear-gradient(135deg, var(--success), #22c55e);
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+    }
+
+    .estado-pendiente {
+        background: linear-gradient(135deg, var(--warning), #f59e0b);
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    .estado-rechazado {
+        background: linear-gradient(135deg, var(--danger), #dc2626);
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .fecha-vencimiento {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* SIN DOCUMENTOS */
+    .no-documentos {
+        text-align: center;
+        padding: 60px 40px;
+        background: var(--glass-bg);
+        border-radius: 25px;
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 40px;
+        animation: pulse 2s ease-in-out infinite alternate;
+    }
+
+    .no-documentos p {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        font-style: italic;
+        margin: 0;
+        text-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
+    }
+
+    /* BOTÓN SUBIR DOCUMENTO */
+    .btn-subir {
+        display: block;
+        text-align: center;
+        padding: 18px 35px;
+        background: linear-gradient(135deg, #f5f5f5, #d8d8d8);
+        border: 2px solid transparent;
+        border-radius: 20px;
+        font-weight: bold;
+        color: #000;
+        text-decoration: none;
+        font-family: monospace;
+        font-size: 1.1rem;
+        margin: 0 auto;
+        max-width: 300px;
+        transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-subir::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s;
+    }
+
+    .btn-subir:hover {
+        transform: translateY(-3px) scale(1.05);
+        background: linear-gradient(135deg, #ffffff, #e8e8e8);
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.3),
+            0 0 25px rgba(255, 255, 255, 0.4),
+            0 0 50px rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-subir:hover::before {
+        left: 100%;
+    }
+
+    .btn-subir:active {
+        transform: translateY(-1px) scale(1.02);
+    }
+
+    /* ANIMACIONES */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes titleGlow {
+        0% {
+            text-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6), 
+                0 0 30px rgba(255, 255, 255, 0.4),
+                0 0 45px rgba(255, 255, 255, 0.2);
+        }
+        100% {
+            text-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.8), 
+                0 0 40px rgba(255, 255, 255, 0.6),
+                0 0 60px rgba(255, 255, 255, 0.3);
+        }
+    }
+
+    @keyframes pulse {
+        0% { 
+            opacity: 0.6;
+            transform: scale(1);
+        }
+        100% { 
+            opacity: 1;
+            transform: scale(1.01);
+        }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .container {
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        li {
+            padding: 20px;
+        }
+        
+        .documento-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .btn-subir {
+            max-width: 100%;
+            padding: 15px 25px;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1>Mis Documentos</h1>
+    
+    {% if documentos %}
+        <ul>
+            {% for doc in documentos %}
+                <li>
+                    <strong>{{ doc.get_tipo_display }}</strong>
+                    <a href="{{ doc.archivo.url }}">{{ doc.archivo.name }}</a>
+                    
+                    <div class="documento-info">
+                        <span class="estado-badge 
+                            {% if doc.estado == 'aprobado' %}estado-aprobado
+                            {% elif doc.estado == 'pendiente' %}estado-pendiente
+                            {% else %}estado-rechazado
+                            {% endif %}">
+                            {{ doc.get_estado_display }}
+                        </span>
+                        <span class="fecha-vencimiento">
+                            Vence: {{ doc.fecha_vencimiento }}
+                        </span>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="no-documentos">
+            <p>No tienes documentos subidos.</p>
+        </div>
+    {% endif %}
+    
+    <a href="{% url 'subir_documento' %}" class="btn-subir">Subir nuevo documento</a>
+</div>
+{% endblock %}

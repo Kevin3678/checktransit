@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Login Attempts</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .info { background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .blocked { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .attempt { border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .failed { background: #ffe0e0; }
+        .successful { background: #e0f7e0; }
+    </style>
+</head>
+<body>
+    <h1>Debug Login Attempts</h1>
+    
+    <div class="info {% if is_blocked %}blocked{% else %}success{% endif %}">
+        <h3>Estado del usuario: {{ username }}</h3>
+        <p><strong>Intentos fallidos:</strong> {{ failed_attempts }}</p>
+        <p><strong>¿Está bloqueado?:</strong> {% if is_blocked %}SÍ{% else %}NO{% endif %}</p>
+    </div>
+
+    <h3>Historial de intentos:</h3>
+    {% for attempt in all_attempts %}
+        <div class="attempt {% if attempt.successful %}successful{% else %}failed{% endif %}">
+            <strong>{{ attempt.timestamp }}</strong> - 
+            IP: {{ attempt.ip_address }} - 
+            {% if attempt.successful %}✅ Exitoso{% else %}❌ Fallido{% endif %}
+        </div>
+    {% empty %}
+        <p>No hay intentos registrados para este usuario.</p>
+    {% endfor %}
+
+    <hr>
+    <form method="get">
+        <input type="text" name="username" placeholder="Nombre de usuario" value="{{ username }}">
+        <button type="submit">Consultar</button>
+    </form>
+
+    <p><a href="{% url 'login' %}">Volver al login</a></p>
+</body>
+</html>

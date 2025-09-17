@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Panel Cliente</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+
+        /* VARIABLES */
+        :root {
+            --primary: #ffffff;
+            --accent: #e0e0e0;
+            --success: #d0d0d0;
+            --bg-dark: #000000;
+            --bg-deep: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --hover-bg: rgba(255, 255, 255, 0.15);
+            --text-muted: #888;
+            --text-color: #ffffff;
+            --border-color: #333;
+            --shadow-glow: rgba(255, 255, 255, 0.2);
+        }
+
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CUERPO */
+        body {
+            font-family: monospace;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-dark), var(--bg-deep));
+            color: var(--text-color);
+            padding: 40px;
+            min-height: 100vh;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.01) 0%, transparent 70%);
+            pointer-events: none;
+            animation: backgroundPulse 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* TÍTULO */
+        h2 {
+            font-family: 'Satisfy', cursive;
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--primary);
+            text-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6), 
+                0 0 30px rgba(255, 255, 255, 0.4),
+                0 0 45px rgba(255, 255, 255, 0.2);
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            letter-spacing: 1px;
+        }
+
+        /* FORMULARIO */
+        form {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"],
+        select {
+            padding: 15px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--primary);
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            font-family: monospace;
+            font-size: 14px;
+            position: relative;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(26, 26, 26, 0.9);
+            box-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.2),
+                0 0 40px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input[type="text"] {
+            width: 50%;
+        }
+
+        select {
+            width: 30%;
+        }
+
+        /* BOTÓN */
+        button {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #f5f5f5, #d8d8d8);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            font-family: monospace;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.02);
+            background: linear-gradient(135deg, #ffffff, #e8e8e8);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.4),
+                0 0 40px rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* RESULTADOS */
+        .results {
+            background: var(--glass-bg);
+            padding: 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid transparent;
+            animation: 
+                borderGlow 8s linear infinite,
+                fadeInUp 0.8s cubic-bezier(0.4, 0.0, 0.2, 1) 0.2s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            border-radius: 25px;
+            pointer-events: none;
+        }
+
+        .results::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #666, #999, #ccc, #666);
+            border-radius: 25px;
+            z-index: -1;
+            animation: borderRotate 8s linear infinite;
+        }
+
+        /* CADA CONDUCTOR */
+        .conductor {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+            font-family: monospace;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .conductor:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .conductor:last-child {
+            border-bottom: none;
+        }
+
+        /* SIN RESULTADOS */
+        .no-results {
+            text-align: center;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            padding: 40px 0;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        /* MENSAJE ÉXITO */
+        .msg-success {
+            color: #f0f0f0;
+            font-weight: bold;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.6),
+                0 0 20px rgba(255, 255, 255, 0.4);
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: successPulse 2s ease-in-out infinite alternate;
+        }
+
+        /* CIERRE DE SESIÓN */
+        a.logout {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            font-family: monospace;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        a.logout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        a.logout:hover {
+            color: var(--accent);
+            text-shadow: 0 0 12px rgba(224, 224, 224, 0.8);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        a.logout:hover::before {
+            left: 100%;
+        }
+
+        /* ANIMACIONES */
+        @keyframes borderGlow {
+            0%, 100% { 
+                border-color: rgba(102, 102, 102, 0.3);
+                box-shadow: 0 0 20px rgba(102, 102, 102, 0.1);
+            }
+            33% { 
+                border-color: rgba(153, 153, 153, 0.4);
+                box-shadow: 0 0 25px rgba(153, 153, 153, 0.15);
+            }
+            66% { 
+                border-color: rgba(204, 204, 204, 0.5);
+                box-shadow: 0 0 30px rgba(204, 204, 204, 0.2);
+            }
+        }
+
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 
+                    0 0 15px rgba(255, 255, 255, 0.6), 
+                    0 0 30px rgba(255, 255, 255, 0.4),
+                    0 0 45px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 0.8), 
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    0 0 60px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes successPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                transform: scale(1.02);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        /* EFECTOS RESPONSIVOS */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            input[type="text"] {
+                width: 100%;
+            }
+            
+            select {
+                width: 60%;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% load custom_filters %}
+
+    <div class="container">
+        <h2>Buscar Conductores Registrados</h2>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="msg-success">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="get">
+            <input type="text" name="q" placeholder="Buscar por nombre o correo..." value="{{ query }}">
+            <select name="orden">
+                <option value="username" {% if orden == 'username' %}selected{% endif %}>Nombre A–Z</option>
+                <option value="username_desc" {% if orden == 'username_desc' %}selected{% endif %}>Nombre Z–A</option>
+                <option value="recientes" {% if orden == 'recientes' %}selected{% endif %}>Más recientes</option>
+            </select>
+            <button type="submit">Buscar</button>
+        </form>
+
+        <div class="results">
+            {% if conductores %}
+            {% for c in conductores %}
+            <div class="conductor">
+                <strong>Usuario:</strong> {{ c.username }}<br>
+                <strong>Email:</strong> {{ c.email }}<br>
+
+                {% with solicitud=solicitudes|get_item:c.id %}
+                {% if solicitud %}
+                {% if solicitud.estado == 'aceptada' %}
+                <!-- ✅ CORRECTO - usa el ID del Conductor -->
+<a href="{% url 'ver_documentos_conductor' c.conductor.id %}">
+    <button>Ver documentos</button>
+</a>
+                {% elif solicitud.estado == 'pendiente' %}
+                <em>Solicitud enviada. Esperando respuesta...</em>
+                {% elif solicitud.estado == 'rechazada' %}
+                <em>Solicitud rechazada.</em>
+                {% endif %}
+                {% else %}
+                    <form action="{% url 'enviar_solicitud' c.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+                    </form>
+
+
+
+
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="no-results">No se encontraron conductores.</div>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'logout' %}" class="logout">Cerrar sesión</a>
+    </div>
+</body>
+
+</html>

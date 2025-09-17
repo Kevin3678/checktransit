@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Usuarios - CheckTransit</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        :root {
+            --primary: #00e6cc;
+            --secondary: #0099ff;
+            --accent: #ff0080;
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .filter-group label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .users-table {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+        }
+
+        .table th {
+            background: rgba(0, 230, 204, 0.05);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            color: var(--text-secondary);
+        }
+
+        .table tr:hover {
+            background: rgba(0, 230, 204, 0.02);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .username {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .user-email {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .role-badge {
+            background: rgba(0, 153, 255, 0.2);
+            color: var(--secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin: 0.1rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>
+                <i data-lucide="users"></i>
+                Gestionar Usuarios
+            </h1>
+            <a href="{% url 'panel_administrador' %}" class="btn btn-back">
+                <i data-lucide="arrow-left"></i>
+                Volver al Panel
+            </a>
+        </div>
+
+        <!-- Filtros -->
+        <form method="GET" class="filters">
+            <div class="filter-group">
+                <label>Buscar:</label>
+                <input type="text" name="busqueda" value="{{ busqueda }}" placeholder="Usuario, email, nombre...">
+            </div>
+            <div class="filter-group">
+                <label>Rol:</label>
+                <select name="rol">
+                    <option value="">Todos los roles</option>
+                    {% for grupo in grupos %}
+                        <option value="{{ grupo.name }}" {% if rol_filtro == grupo.name %}selected{% endif %}>
+                            {{ grupo.name|capfirst }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Estado:</label>
+                <select name="estado">
+                    <option value="">Todos</option>
+                    <option value="activo" {% if estado_filtro == 'activo' %}selected{% endif %}>Activos</option>
+                    <option value="inactivo" {% if estado_filtro == 'inactivo' %}selected{% endif %}>Inactivos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-back">
+                    <i data-lucide="search"></i>
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <div class="messages" style="margin-bottom: 2rem;">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags }}" style="padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.1); color: var(--success){% elif message.tags == 'error' %}rgba(239, 68, 68, 0.1); color: var(--error){% else %}rgba(0, 153, 255, 0.1); color: var(--secondary){% endif %};">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="users-table">
+            <div class="table-header">
+                Usuarios del Sistema ({{ usuarios|length }})
+            </div>
+
+            {% if usuarios %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Roles</th>
+                                <th>Estado</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="username">{{ usuario.username }}</div>
+                                            <div class="user-email">{{ usuario.email }}</div>
+                                            {% if usuario.first_name or usuario.last_name %}
+                                                <div class="user-email">{{ usuario.first_name }} {{ usuario.last_name }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% for grupo in usuario.groups.all %}
+                                            <span class="role-badge">{{ grupo.name|capfirst }}</span>
+                                        {% empty %}
+                                            <span class="role-badge" style="background: rgba(148, 163, 184, 0.2); color: var(--text-muted);">Sin rol</span>
+                                        {% endfor %}
+                                        {% if usuario.is_superuser %}
+                                            <span class="role-badge" style="background: rgba(255, 0, 128, 0.2); color: var(--accent);">Superuser</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="status-badge {% if usuario.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                            {% if usuario.is_active %}Activo{% else %}Inactivo{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="color: var(--text-muted); font-size: 0.9rem;">
+                                            {{ usuario.date_joined|date:"d/m/Y" }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            {% if usuario != user and not usuario.is_superuser %}
+                                                <button type="button" class="btn btn-danger btn-sm" 
+                                                        onclick="openDeleteModal({{ usuario.id }}, '{{ usuario.username }}')">
+                                                    <i data-lucide="trash-2"></i>
+                                                    Eliminar
+                                                </button>
+                                            {% elif usuario == user %}
+                                                <span style="color: var(--text-muted); font-size: 0.8rem;">Eres tú</span>
+                                            {% elif usuario.is_superuser %}
+                                                <span style="color: var(--text-muted); font-size: 0.8rem;">Superuser</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i data-lucide="search-x"></i>
+                    <h3>No se encontraron usuarios</h3>
+                    <p>No hay usuarios que coincidan con los filtros aplicados.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirmar Eliminación</h2>
+                <button type="button" class="close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar al usuario <strong id="deleteUsername"></strong>?</p>
+                <p style="color: var(--error); margin-top: 1rem;">
+                    <i data-lucide="alert-triangle" style="display: inline; width: 16px; height: 16px;"></i>
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-back" onclick="closeDeleteModal()">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i data-lucide="trash-2"></i>
+                        Eliminar Usuario
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        function openDeleteModal(userId, username) {
+            const modal = document.getElementById('deleteModal');
+            const form = document.getElementById('deleteForm');
+            const usernameElement = document.getElementById('deleteUsername');
+            
+            usernameElement.textContent = username;
+            form.action = `/admin/eliminar-usuario/${userId}/`;
+            modal.style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target == modal) {
+                closeDeleteModal();
+            }
+        }
+    </script>
+</body>
+</html>

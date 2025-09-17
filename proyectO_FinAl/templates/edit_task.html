@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Tarea - Sistema de Gestión{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ESTILOS ESPECÍFICOS PARA EDITAR TAREA */
+    .edit-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 100px);
+        padding: 40px 20px;
+    }
+
+    .edit-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 2px solid var(--border-color);
+        border-radius: 25px;
+        padding: 50px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: slideIn 0.6s ease-out;
+    }
+
+    /* Borde animado */
+    .edit-card::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        background: linear-gradient(135deg, #666, #999, #ccc, #666);
+        background-size: 300% 300%;
+        animation: gray-border 6s linear infinite;
+        z-index: -1;
+        filter: blur(8px);
+    }
+
+    @keyframes gray-border {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .edit-title {
+        font-family: 'Satisfy', cursive;
+        text-align: center;
+        margin-bottom: 30px;
+        color: var(--primary);
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        font-size: 2.2rem;
+    }
+
+    /* FORMULARIO */
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-bottom: 2px solid #666;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--primary);
+        font-size: 1rem;
+        font-family: 'Share Tech Mono', monospace;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-bottom-color: #999;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* BOTONES */
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-primary {
+        flex: 1;
+        padding: 15px 25px;
+        background: linear-gradient(135deg, #f0f0f0, #d0d0d0);
+        color: #000;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-weight: 700;
+        font-family: 'Share Tech Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 6px 20px rgba(240, 240, 240, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.9rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(255, 255, 255, 0.4);
+        background: linear-gradient(135deg, #ffffff, #e0e0e0);
+    }
+
+    .btn-secondary {
+        flex: 1;
+        padding: 15px 25px;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid #666;
+        border-radius: 15px;
+        cursor: pointer;
+        font-weight: 600;
+        font-family: 'Share Tech Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #999;
+        color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    /* EFECTOS ADICIONALES */
+    .edit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+        .edit-card {
+            padding: 30px 25px;
+        }
+
+        .edit-title {
+            font-size: 1.8rem;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .edit-container {
+            padding: 20px 15px;
+        }
+
+        .edit-card {
+            padding: 25px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="edit-container">
+        <div class="edit-card">
+            <h2 class="edit-title">Editar Tarea</h2>
+            
+            <form method="POST" class="form-container">
+                {% csrf_token %}
+                
+                <!-- Renderizar campos del formulario manualmente para mejor control -->
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="field-errors">
+                            {% for error in field.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">
+                        Guardar Cambios
+                    </button>
+                    <a href="{% url 'home' %}" class="btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

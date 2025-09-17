@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <h1 class="text-4xl text-center mb-6 animate-fade-in-down">📄 Validación de Documentos</h1>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="msg-{{ message.tags|default:'other' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="overflow-x-auto table-container animate-fade-in-up">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Conductor</th>
+                    <th>Tipo</th>
+                    <th>Archivo</th>
+                    <th>Vence</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documentos %}
+                <tr>
+                    <td>{{ doc.conductor.user.get_full_name|default:doc.conductor.user.username }}</td>
+                    <td>{{ doc.get_tipo_display }}</td>
+                    <td>
+                        <a href="{{ doc.archivo.url }}" target="_blank" class="link-neon">Ver PDF</a>
+                    </td>
+                    <td
+                        class="{% if doc.fecha_vencimiento < today %}text-red{% elif doc.fecha_vencimiento <= today|add:'7' %}text-yellow{% endif %}">
+                        {{ doc.fecha_vencimiento }}
+                    </td>
+                    <td>{{ doc.estado }}</td>
+                    <td>
+                        <form method="POST" class="acciones-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="documento_id" value="{{ doc.id }}">
+                            <button name="accion" value="aprobado" class="btn-neon btn-green">✅ Aprobar</button>
+                            <button name="accion" value="rechazado" class="btn-neon btn-red">❌ Rechazar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="no-data">No hay documentos para validar.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Scriptify&display=swap');
+
+    :root {
+        --primary: #00fff7;
+        --accent: #ff00d4;
+    }
+
+    body {
+        background: #000;
+        color: white;
+    }
+
+    /* Animaciones glow */
+    @keyframes fade-in-down {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+            filter: drop-shadow(0 0 6px var(--primary));
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: drop-shadow(0 0 12px var(--accent));
+        }
+    }
+
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+            filter: drop-shadow(0 0 6px var(--accent));
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: drop-shadow(0 0 12px var(--primary));
+        }
+    }
+
+    .animate-fade-in-down {
+        animation: fade-in-down 0.6s ease-out both;
+        font-family: 'Scriptify', cursive;
+        color: white;
+        text-shadow: 0 0 10px var(--primary), 0 0 20px var(--accent);
+    }
+
+    .animate-fade-in-up {
+        animation: fade-in-up 0.6s ease-out both;
+    }
+
+    /* Tabla neon */
+    .table-container {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--primary);
+        box-shadow: 0 0 15px var(--primary), 0 0 30px var(--accent);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: white;
+    }
+
+    .custom-table th {
+        background: var(--primary);
+        color: black;
+        padding: 12px;
+        font-family: monospace;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .custom-table td {
+        padding: 10px;
+        text-align: center;
+        font-family: monospace;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .custom-table tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transition: 0.3s;
+    }
+
+    /* Botones */
+    .btn-neon {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-family: monospace;
+        font-weight: bold;
+        text-shadow: 0 0 5px white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-green {
+        background: #00ff7f;
+        box-shadow: 0 0 10px #00ff7f;
+    }
+
+    .btn-green:hover {
+        background: #00cc66;
+        box-shadow: 0 0 15px #00ff7f, 0 0 30px #00cc66;
+    }
+
+    .btn-red {
+        background: #ff0040;
+        box-shadow: 0 0 10px #ff0040;
+    }
+
+    .btn-red:hover {
+        background: #cc0033;
+        box-shadow: 0 0 15px #ff0040, 0 0 30px #cc0033;
+    }
+
+    /* Links */
+    .link-neon {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .link-neon:hover {
+        color: var(--accent);
+        text-shadow: 0 0 10px var(--accent);
+    }
+
+    /* Mensajes */
+    .msg-success {
+        background: #00ff7f;
+        padding: 10px;
+        border-radius: 8px;
+        color: black;
+        font-weight: bold;
+        margin-bottom: 10px;
+        box-shadow: 0 0 10px #00ff7f;
+    }
+
+    .msg-error {
+        background: #ff0040;
+        padding: 10px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 10px;
+        box-shadow: 0 0 10px #ff0040;
+    }
+
+    .msg-other {
+        background: #ff00d4;
+        padding: 10px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 10px;
+        box-shadow: 0 0 10px #ff00d4;
+    }
+
+    /* Texto de advertencia fechas */
+    .text-red {
+        color: #ff0040;
+        font-weight: bold;
+    }
+
+    .text-yellow {
+        color: #ffea00;
+        font-weight: bold;
+    }
+
+    .no-data {
+        padding: 15px;
+        text-align: center;
+        color: #bbb;
+        font-style: italic;
+    }
+</style>
+{% endblock %}

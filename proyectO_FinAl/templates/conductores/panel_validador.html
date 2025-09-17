@@ -1,0 +1,711 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Validador CheckTransit</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
+
+        /* VARIABLES */
+        :root {
+            --primary: #ffffff;
+            --accent: #e0e0e0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-dark: #000000;
+            --bg-deep: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --hover-bg: rgba(255, 255, 255, 0.15);
+            --text-muted: #888;
+            --text-color: #ffffff;
+            --border-color: #333;
+            --shadow-glow: rgba(255, 255, 255, 0.2);
+        }
+
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CUERPO */
+        body {
+            font-family: 'Orbitron', monospace;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-dark), var(--bg-deep));
+            color: var(--text-color);
+            padding: 40px;
+            min-height: 100vh;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.01) 0%, transparent 70%);
+            pointer-events: none;
+            animation: backgroundPulse 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* TÍTULO */
+        h2 {
+            font-family: 'Satisfy', cursive;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--primary);
+            text-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6), 
+                0 0 30px rgba(255, 255, 255, 0.4),
+                0 0 45px rgba(255, 255, 255, 0.2);
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            letter-spacing: 1px;
+        }
+
+        /* NAVEGACIÓN POR TABS */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .nav-tabs::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px 30px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', monospace;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        /* SECCIONES DE CONTENIDO */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        /* TABLA */
+        .table-container {
+            background: var(--glass-bg);
+            padding: 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: borderGlow 8s linear infinite;
+        }
+
+        .table-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            border-radius: 25px;
+            pointer-events: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.01);
+        }
+
+        /* ESTADOS */
+        .estado {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .estado.pendiente {
+            background: linear-gradient(135deg, var(--warning), #f59e0b);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+        }
+
+        .estado.aprobado {
+            background: linear-gradient(135deg, var(--success), #22c55e);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .estado.rechazado {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* BOTONES */
+        .btn {
+            padding: 10px 18px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            font-family: 'Orbitron', monospace;
+            text-decoration: none;
+            display: inline-block;
+            margin: 2px;
+            font-size: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-validar {
+            font-size: 11px;
+            padding: 8px 15px;
+        }
+
+        .btn-aprobar {
+            background: linear-gradient(135deg, var(--success), #22c55e);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-aprobar:hover {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .btn-rechazar {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-rechazar:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-outline-info {
+            background: transparent;
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .btn-outline-info:hover {
+            background: var(--info);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* REPORTES */
+        .reporte-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reporte-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .reporte-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .reporte-conductor {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .reporte-cliente {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .reporte-fecha {
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+
+        .reporte-motivo {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: var(--text-color);
+        }
+
+        /* LOGOUT */
+        .logout-link {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* SIN CONTENIDO */
+        .no-content {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 1.1rem;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        /* ANIMACIONES */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 
+                    0 0 15px rgba(255, 255, 255, 0.6), 
+                    0 0 30px rgba(255, 255, 255, 0.4),
+                    0 0 45px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 0.8), 
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    0 0 60px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { 
+                border-color: rgba(102, 102, 102, 0.3);
+                box-shadow: 0 0 20px rgba(102, 102, 102, 0.1);
+            }
+            33% { 
+                border-color: rgba(153, 153, 153, 0.4);
+                box-shadow: 0 0 25px rgba(153, 153, 153, 0.15);
+            }
+            66% { 
+                border-color: rgba(204, 204, 204, 0.5);
+                box-shadow: 0 0 30px rgba(204, 204, 204, 0.2);
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                padding: 15px 20px;
+            }
+            
+            .table-container {
+                padding: 20px;
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .logout-link {
+                position: static;
+                display: block;
+                text-align: center;
+                margin: 20px auto;
+                max-width: 200px;
+            }
+            
+            .reporte-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="{% url 'logout' %}" class="logout-link">🚪 Cerrar Sesión</a>
+    
+    <div class="container">
+        <h2>🛡️ Panel de Validación CheckTransit</h2>
+
+        <!-- NAVEGACIÓN POR TABS -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('documentos')">
+                📄 Documentos
+            </button>
+            <button class="nav-tab" onclick="showTab('reportes')">
+                🚨 Reportes
+            </button>
+        </div>
+
+        <!-- TAB DOCUMENTOS -->
+        <div id="documentos" class="tab-content active">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Conductor</th>
+                            <th>Tipo</th>
+                            <th>Documento</th>
+                            <th>Vence</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documentos %}
+                        <tr>
+                            <td>{{ doc.conductor.user.get_full_name|default:doc.conductor.user.username }}</td>
+                            <td>{{ doc.get_tipo_display }}</td>
+                            <td>
+                                {% if doc.es_archivo_valido %}
+                                <a class="btn btn-outline-info" href="{{ doc.archivo.url }}" target="_blank">
+                                    👁️ Ver documento
+                                </a>
+                                {% else %}
+                                <span style="color: var(--warning);">⚠️ Archivo inválido</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ doc.fecha_vencimiento }}</td>
+                            <td>
+                                <span class="estado {{ doc.estado }}">
+                                    {{ doc.estado|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="documento_id" value="{{ doc.id }}">
+                                    <input type="hidden" name="accion" value="aprobado">
+                                    <button type="submit" class="btn btn-validar btn-aprobar">
+                                        ✅ Aprobar
+                                    </button>
+                                </form>
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="documento_id" value="{{ doc.id }}">
+                                    <input type="hidden" name="accion" value="rechazado">
+                                    <button type="submit" class="btn btn-validar btn-rechazar">
+                                        ❌ Rechazar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="no-content">
+                                📭 No hay documentos pendientes por validar
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB REPORTES -->
+        <div id="reportes" class="tab-content">
+            <div class="table-container">
+                {% if reportes %}
+                    {% for reporte in reportes %}
+                    <div class="reporte-card">
+                        <div class="reporte-header">
+                            <div>
+                                <div class="reporte-conductor">
+                                    🚨 Conductor: {{ reporte.conductor.user.username }}
+                                </div>
+                                <div class="reporte-cliente">
+                                    Reportado por: {{ reporte.cliente.username }}
+                                </div>
+                            </div>
+                            <div class="reporte-fecha">
+                                📅 {{ reporte.fecha_reporte|date:"d/m/Y H:i" }}
+                            </div>
+                        </div>
+                        <div class="reporte-motivo">
+                            <strong>Motivo:</strong><br>
+                            {{ reporte.motivo }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="no-content">
+                    📭 No hay reportes registrados
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad de tabs
+        function showTab(tabName) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remover clase active de todos los tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar el contenido seleccionado
+            document.getElementById(tabName).classList.add('active');
+
+            // Activar el tab seleccionado
+            event.target.classList.add('active');
+        }
+
+        // CSRF Token handling
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        if (csrftoken) {
+            // Configurar CSRF para todas las peticiones AJAX
+            function setupCSRF() {
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    if (!form.querySelector('[name=csrfmiddlewaretoken]')) {
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = 'csrfmiddlewaretoken';
+                        csrfInput.value = csrftoken;
+                        form.appendChild(csrfInput);
+                    }
+                });
+            }
+            
+            // Ejecutar al cargar la página
+            document.addEventListener('DOMContentLoaded', setupCSRF);
+        }
+
+        // Animaciones adicionales
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animar las filas de la tabla con delay
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                row.style.animationDelay = `${index * 0.1}s`;
+                row.style.animation = 'slideInUp 0.6s ease-out both';
+            });
+
+            // Animar las tarjetas de reporte con delay
+            const reportCards = document.querySelectorAll('.reporte-card');
+            reportCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+                card.style.animation = 'slideInUp 0.6s ease-out both';
+            });
+        });
+    </script>
+</body>
+
+</html>

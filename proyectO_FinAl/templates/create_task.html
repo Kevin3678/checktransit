@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Nueva Tarea - CheckTransit{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container">
+        <h1 class="page-title">Nueva Tarea</h1>
+        <p class="page-subtitle">Crea y organiza tus actividades de manera eficiente</p>
+        
+        <div class="task-form-wrapper">
+            <div class="glass-card task-form-card">
+                <form method="POST" novalidate class="task-form">
+                    {% csrf_token %}
+                    
+                    <!-- Renderizado personalizado del formulario -->
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {% if field.field.widget.input_type == 'textarea' %}
+                                {{ field|add_class:'form-control form-textarea' }}
+                            {% elif field.field.widget.input_type == 'select' %}
+                                {{ field|add_class:'form-control form-select' }}
+                            {% else %}
+                                {{ field|add_class:'form-control' }}
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                                <div class="error-messages">
+                                    {% for error in field.errors %}
+                                        <span class="error-text">
+                                            <i data-lucide="alert-circle"></i>
+                                            {{ error }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Errores generales del formulario -->
+                    {% if form.non_field_errors %}
+                        <div class="non-field-errors glass-card error-card">
+                            {% for error in form.non_field_errors %}
+                                <div class="error-text">
+                                    <i data-lucide="alert-triangle"></i>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Acciones del formulario -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="save"></i>
+                            <span>Guardar Tarea</span>
+                        </button>
+                        
+                        <a href="{% url 'home' %}" class="btn btn-secondary">
+                            <i data-lucide="arrow-left"></i>
+                            <span>Volver al Inicio</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .task-form-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: calc(100vh - 200px);
+    }
+
+    .task-form-card {
+        width: 100%;
+        max-width: 600px;
+        position: relative;
+        overflow: visible;
+    }
+
+    .task-form-card::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(
+            45deg,
+            var(--primary),
+            var(--secondary),
+            var(--accent),
+            var(--primary)
+        );
+        background-size: 300% 300%;
+        border-radius: 18px;
+        z-index: -1;
+        opacity: 0;
+        animation: borderGlow 4s ease infinite;
+        transition: opacity var(--transition-normal);
+    }
+
+    .task-form-card:hover::after {
+        opacity: 0.6;
+    }
+
+    @keyframes borderGlow {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    .task-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Mejoras para elementos del formulario */
+    .form-group {
+        position: relative;
+        animation: slideInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group label::before {
+        content: '';
+        width: 3px;
+        height: 16px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 2px;
+    }
+
+    /* Estilos específicos para diferentes tipos de input */
+    .form-control {
+        background: rgba(30, 41, 59, 0.6);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        transition: all var(--transition-normal);
+        backdrop-filter: blur(10px);
+        position: relative;
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.5;
+    }
+
+    .form-select {
+        cursor: pointer;
+        background-image: linear-gradient(45deg, transparent 50%, var(--primary) 50%),
+                          linear-gradient(135deg, var(--primary) 50%, transparent 50%);
+        background-position: calc(100% - 20px) calc(50% - 2px),
+                           calc(100% - 15px) calc(50% - 2px);
+        background-size: 5px 5px, 5px 5px;
+        background-repeat: no-repeat;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.8);
+        box-shadow: 
+            0 0 0 3px rgba(0, 230, 204, 0.1),
+            0 0 20px rgba(0, 230, 204, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .form-control:hover {
+        border-color: var(--border-glow);
+        background: rgba(30, 41, 59, 0.8);
+    }
+
+    /* Estados de validación */
+    .form-control:valid {
+        border-color: var(--success);
+    }
+
+    .form-control:invalid:not(:focus):not(:placeholder-shown) {
+        border-color: var(--error);
+    }
+
+    /* Mensajes de error */
+    .error-messages {
+        margin-top: 0.5rem;
+    }
+
+    .error-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--error);
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.5rem;
+        background: rgba(255, 71, 87, 0.1);
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        border-radius: 8px;
+        margin-bottom: 0.25rem;
+        animation: errorSlideIn 0.3s ease;
+    }
+
+    .error-text i {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    @keyframes errorSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .error-card {
+        background: rgba(255, 71, 87, 0.1);
+        border-color: rgba(255, 71, 87, 0.3);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Texto de ayuda */
+    .help-text {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-style: italic;
+    }
+
+    /* Acciones del formulario */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        animation: slideInUp 0.6s ease 0.6s both;
+    }
+
+    /* Mejoras para botones en el formulario */
+    .form-actions .btn {
+        min-width: 160px;
+        padding: 14px 28px;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-actions .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        box-shadow: 
+            0 4px 15px rgba(0, 230, 204, 0.3),
+            0 0 30px rgba(0, 230, 204, 0.1);
+        animation: buttonPulse 2s ease infinite;
+    }
+
+    @keyframes buttonPulse {
+        0%, 100% { box-shadow: 0 4px 15px rgba(0, 230, 204, 0.3), 0 0 30px rgba(0, 230, 204, 0.1); }
+        50% { box-shadow: 0 6px 20px rgba(0, 230, 204, 0.4), 0 0 40px rgba(0, 230, 204, 0.2); }
+    }
+
+    .form-actions .btn:hover {
+        transform: translateY(-3px) scale(1.02);
+    }
+
+    .form-actions .btn:active {
+        transform: translateY(-1px) scale(0.98);
+    }
+
+    /* Efectos de carga */
+    .btn.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: auto;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 0.5rem;
+        }
+
+        .task-form-card {
+            margin: 1rem 0;
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+            max-width: 280px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .task-form-card {
+            padding: 1rem;
+        }
+
+        .form-control {
+            padding: 12px 14px;
+            font-size: 0.95rem;
+        }
+
+        .form-actions .btn {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            min-width: auto;
+        }
+    }
+
+    /* Animación de entrada para todo el formulario */
+    .task-form-wrapper {
+        animation: formFadeIn 0.8s ease;
+    }
+
+    @keyframes formFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Efecto de partículas sutiles */
+    .task-form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(0, 230, 204, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(0, 153, 255, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.02) 0%, transparent 50%);
+        border-radius: 16px;
+        pointer-events: none;
+        z-index: -1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mejorar la experiencia del formulario
+    const form = document.querySelector('.task-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    // Validación en tiempo real
+    const inputs = form.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        // Efecto de validación visual
+        input.addEventListener('input', function() {
+            if (this.checkValidity()) {
+                this.style.borderColor = 'var(--success)';
+            } else if (this.value.length > 0) {
+                this.style.borderColor = 'var(--warning)';
+            } else {
+                this.style.borderColor = 'var(--border-color)';
+            }
+        });
+
+        // Animación de enfoque
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+            this.parentElement.style.zIndex = '10';
+        });
+
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+            this.parentElement.style.zIndex = 'auto';
+        });
+    });
+
+    // Estado de carga del botón
+    form.addEventListener('submit', function(e) {
+        submitButton.classList.add('loading');
+        submitButton.innerHTML = '<span class="loading"></span> Guardando...';
+        
+        // Simular delay para mostrar el estado de carga
+        setTimeout(() => {
+            // El formulario se enviará normalmente
+        }, 100);
+    });
+
+    // Contador de caracteres para textarea
+    const textareas = form.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        const maxLength = textarea.getAttribute('maxlength');
+        if (maxLength) {
+            const counter = document.createElement('div');
+            counter.className = 'char-counter';
+            counter.style.cssText = `
+                text-align: right;
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                margin-top: 0.25rem;
+            `;
+            
+            const updateCounter = () => {
+                const current = textarea.value.length;
+                counter.textContent = `${current}/${maxLength}`;
+                counter.style.color = current > maxLength * 0.9 ? 'var(--warning)' : 'var(--text-muted)';
+            };
+            
+            textarea.parentElement.appendChild(counter);
+            textarea.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    });
+
+    // Autoguardado (simulado)
+    let autoSaveTimeout;
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                // Aquí podrías implementar autoguardado real
+                console.log('Autoguardado simulado...');
+            }, 2000);
+        });
+    });
+
+    // Prevenir pérdida de datos
+    let formChanged = false;
+    inputs.forEach(input => {
+        input.addEventListener('change', () => formChanged = true);
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    form.addEventListener('submit', () => formChanged = false);
+});
+</script>
+{% endblock %}

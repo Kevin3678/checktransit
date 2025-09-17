@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="delete-container" style="display:flex; justify-content:center; align-items:center; height:80vh;">
+    <div style="background:#222; padding:30px; border-radius:12px; text-align:center; color:#fff;">
+        <h2>¿Eliminar esta tarea?</h2>
+        <p><strong>{{ task.title }}</strong></p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" style="padding:10px 20px; border:none; border-radius:6px; background:#ff4d4d; color:#fff; cursor:pointer;">Sí, eliminar</button>
+        </form>
+
+        <div style="margin-top:15px;">
+            <a href="{% url 'home' %}" style="color:#00f; text-decoration:underline;">Cancelar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

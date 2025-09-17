@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Token inválido</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+
+        /* VARIABLES */
+        :root {
+            --primary: #00ffee;
+            --accent: #00e6d0;
+            --secondary: #00ff9f;
+            --bg-dark: #000000;
+            --bg-deep: #0f0f0f;
+            --glass-bg: rgba(0, 255, 238, 0.05);
+            --hover-bg: rgba(0, 255, 238, 0.1);
+            --text-muted: #aaa;
+            --text-color: #ffffff;
+        }
+
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CUERPO */
+        body {
+            font-family: monospace;
+            background: linear-gradient(135deg, var(--bg-dark), var(--bg-deep));
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        /* CONTENEDOR MENSAJE */
+        .message {
+            background: var(--glass-bg);
+            padding: 3rem 2.5rem;
+            border-radius: 20px;
+            max-width: 600px;
+            box-shadow: 0 0 25px rgba(0, 255, 221, 0.15);
+            border: 2px solid transparent;
+            animation: rgb-border 6s linear infinite;
+            backdrop-filter: blur(12px);
+        }
+
+        /* TÍTULO */
+        h1 {
+            font-family: 'Satisfy', cursive;
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 12px var(--primary), 0 0 25px var(--primary);
+        }
+
+        /* ENLACE */
+        a {
+            color: var(--secondary);
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 6px var(--secondary);
+            font-family: monospace;
+        }
+
+        a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        /* BORDES ANIMADOS */
+        @keyframes rgb-border {
+            0% {
+                border-color: rgb(0, 255, 221);
+            }
+
+            33% {
+                border-color: rgb(0, 200, 255);
+            }
+
+            66% {
+                border-color: rgb(0, 150, 255);
+            }
+
+            100% {
+                border-color: rgb(0, 255, 221);
+            }
+        }
+
+        /* ANIMACIÓN ENTRADA */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="message">
+        <h1>❌ Token inválido o expirado</h1>
+        <p>El enlace de activación ya no es válido o ya fue utilizado.</p>
+        <p>Si ya activaste tu cuenta, puedes iniciar sesión.</p>
+        <a href="{% url 'login' %}">Ir al inicio de sesión</a>
+    </div>
+</body>
+
+</html>

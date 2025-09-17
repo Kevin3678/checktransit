@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - CheckTransit</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #0a0e1a; color: white; }
+        .header { background: #111827; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card { background: #1f2937; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .btn { background: #00e6cc; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-number { font-size: 2rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Panel de Administrador</h1>
+        <p>Bienvenido, {{ user.username }}</p>
+        <a href="{% url 'logout' %}" class="btn">Cerrar Sesión</a>
+    </div>
+
+    <div class="stats">
+        <div class="card">
+            <div class="stat-number">{{ total_usuarios }}</div>
+            <div>Total de Usuarios</div>
+        </div>
+        <div class="card">
+            <div class="stat-number">{{ usuarios_activos }}</div>
+            <div>Usuarios Activos</div>
+        </div>
+        <div class="card">
+            <div class="stat-number">{{ registros_pendientes }}</div>
+            <div>Validadores Pendientes</div>
+        </div>
+        <div class="card">
+            <div class="stat-number">{{ reportes_pendientes }}</div>
+            <div>Reportes</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Acciones Principales</h2>
+        <a href="{% url 'gestionar_validadores_pendientes' %}" class="btn">Gestionar Validadores</a>
+        <a href="{% url 'gestionar_usuarios' %}" class="btn">Gestionar Usuarios</a>
+        <a href="{% url 'ver_reportes' %}" class="btn">Ver Reportes</a>
+    </div>
+
+    <div class="card">
+        <h3>Últimas Acciones</h3>
+        {% for accion in ultimas_acciones %}
+            <p>{{ accion.fecha|date:"d/m H:i" }} - {{ accion.descripcion }}</p>
+        {% empty %}
+            <p>No hay acciones recientes</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

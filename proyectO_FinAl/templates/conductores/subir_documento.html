@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Perfil del Conductor{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Ajustes generales */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 40px 20px;
+  min-height: calc(100vh - 120px);
+}
+
+/* Card base */
+.card-section {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(31,41,55,0.65);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 12px 40px rgba(2,6,23,0.65), 0 4px 12px rgba(0,255,247,0.03) inset;
+  backdrop-filter: blur(8px);
+  color: var(--text-color);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.card-section:hover { transform: translateY(-4px); }
+
+.card-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Satisfy', cursive;
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+/* Lista de reseñas */
+.review-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.review-item {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 0;
+}
+.review-item:last-child { border-bottom: none; }
+.review-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.review-text { font-size: 0.95rem; }
+
+/* Grid formulario documentos */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  align-items: end;
+}
+@media (max-width: 760px) { .form-grid { grid-template-columns: 1fr; } }
+
+/* Inputs */
+.card-section label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.card-section input,
+.card-section select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-color);
+  outline: none;
+  font-size: 0.95rem;
+}
+.card-section input:focus,
+.card-section select:focus {
+  border-color: rgba(0,255,247,0.18);
+  box-shadow: 0 8px 30px rgba(0,255,247,0.04);
+  background: rgba(255,255,255,0.03);
+}
+
+/* Botones */
+.button-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+.btn-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: linear-gradient(90deg,#00fff7,#ff00d4);
+  color: #000;
+  box-shadow: 0 8px 30px rgba(0,255,247,0.12);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn-upload:hover { transform: translateY(-3px); }
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  color: var(--text-color);
+  text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Reseñas -->
+  <div class="card-section">
+    <h2><i data-lucide="star"></i> Reseñas del Conductor</h2>
+    {% if reseñas %}
+      <ul class="review-list">
+        {% for reseña in reseñas %}
+          <li class="review-item">
+            <div class="review-meta">
+              <strong>{{ reseña.cliente.username }}</strong> • {{ reseña.fecha|date:"d/m/Y H:i" }}
+            </div>
+            <div class="review-text">{{ reseña.comentario }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="review-text">Este conductor aún no tiene reseñas.</p>
+    {% endif %}
+  </div>
+
+  <!-- Subir Documento -->
+  <div class="card-section" role="region" aria-label="Subir documento">
+    <h2><i data-lucide="file-plus"></i> Subir Documento</h2>
+    <p class="lead">Selecciona el archivo (PDF) y la fecha de vencimiento.</p>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="form-grid">
+        <div>
+          <label for="{{ form.tipo.id_for_label }}">Tipo de documento</label>
+          {{ form.tipo }}
+        </div>
+        <div>
+          <label for="{{ form.archivo.id_for_label }}">Archivo</label>
+          {{ form.archivo }}
+        </div>
+        <div>
+          <label for="{{ form.fecha_vencimiento.id_for_label }}">Fecha vencimiento</label>
+          {{ form.fecha_vencimiento }}
+        </div>
+      </div>
+      <div class="button-row">
+        <button type="submit" class="btn-upload"><i data-lucide="upload"></i> Subir</button>
+        <a href="{% url 'home' %}" class="btn-cancel">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+if (typeof lucide !== 'undefined') lucide.createIcons();
+document.addEventListener("DOMContentLoaded", () => {
+  const fechaInput = document.querySelector("input[type='date']");
+  if (fechaInput) {
+    const today = new Date().toISOString().split("T")[0];
+    fechaInput.setAttribute("min", today);
+  }
+});
+</script>
+{% endblock %}

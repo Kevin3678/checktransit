@@ -1,0 +1,523 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}CheckTransit - Inicio{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ESTILOS ESPECÍFICOS PARA LA PÁGINA DE INICIO */
+    .hero-container {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        flex-wrap: wrap;
+        margin-top: -40px; /* Compensar padding del main-content */
+    }
+
+    .hero-left {
+        flex: 1;
+        background: url("{% static '/img/logo_empresa.jpg' %}") center center no-repeat;
+        background-size: contain;
+        border-right: 4px solid transparent;
+        animation: borderGlow 4s infinite linear;
+        min-height: 400px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-left::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(75, 85, 99, 0.1) 0%,
+            transparent 50%,
+            rgba(107, 114, 128, 0.1) 100%
+        );
+        border-radius: 20px;
+        margin: 20px;
+    }
+
+    .hero-right {
+        flex: 1;
+        padding: 3rem 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        animation: fadeInUp 1s ease;
+    }
+
+    .hero-title {
+        font-family: 'Satisfy', cursive;
+        font-size: 4rem;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 0 20px rgba(75, 85, 99, 0.5));
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 3rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        font-weight: 300;
+    }
+
+    .hero-subtitle strong {
+        color: var(--text-color);
+        font-weight: 600;
+    }
+
+    /* SECCIONES DE NAVEGACIÓN */
+    .navigation-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .nav-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .nav-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .nav-section:hover::before {
+        transform: scaleX(1);
+    }
+
+    .nav-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px var(--shadow-heavy);
+        border-color: var(--accent);
+    }
+
+    .nav-section-icon {
+        background: var(--glass-bg);
+        padding: 1.2rem;
+        border-radius: 16px;
+        border: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 60px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-section:hover .nav-section-icon {
+        background: var(--hover-bg);
+        transform: scale(1.1);
+    }
+
+    .nav-section-icon i {
+        width: 28px;
+        height: 28px;
+        color: var(--primary);
+        transition: color 0.3s ease;
+    }
+
+    .nav-section:hover .nav-section-icon i {
+        color: var(--text-color);
+    }
+
+    .nav-section-text {
+        text-align: left;
+        flex: 1;
+    }
+
+    .nav-section-title {
+        font-size: 1.3rem;
+        color: var(--text-color);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .nav-section-description {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        font-weight: 400;
+        transition: color 0.3s ease;
+    }
+
+    .nav-section:hover .nav-section-description {
+        color: var(--text-secondary);
+    }
+
+    /* MENSAJES */
+    .messages-container {
+        position: fixed;
+        top: 100px;
+        right: 30px;
+        z-index: 1001;
+        max-width: 400px;
+    }
+
+    .message {
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 8px 25px var(--shadow-medium);
+        backdrop-filter: blur(15px);
+        animation: slideInRight 0.5s ease-out;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .message.success {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .message.error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .message.info,
+    .message.other {
+        background: var(--glass-bg);
+        color: var(--text-color);
+        border: 1px solid var(--glass-border);
+    }
+
+    /* FOOTER */
+    .hero-footer {
+        margin-top: 3rem;
+        padding: 2rem;
+        background: var(--glass-bg);
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        text-align: center;
+    }
+
+    .hero-footer p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+
+    .hero-footer strong {
+        color: var(--text-color);
+    }
+
+    .company-name {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    /* ANIMACIONES ADICIONALES */
+    @keyframes borderGlow {
+        0%, 100% {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(75, 85, 99, 0.3);
+        }
+        50% {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(107, 114, 128, 0.4);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .hero-container {
+            flex-direction: column;
+        }
+
+        .hero-left {
+            border-right: none;
+            border-bottom: 4px solid transparent;
+            min-height: 300px;
+        }
+
+        .hero-right {
+            padding: 2rem 1rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .navigation-sections {
+            max-width: 100%;
+        }
+
+        .nav-section {
+            padding: 1.2rem;
+        }
+
+        .messages-container {
+            position: static;
+            max-width: 100%;
+            margin-bottom: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .nav-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .nav-section-text {
+            text-align: center;
+        }
+
+        .hero-footer {
+            padding: 1.5rem;
+        }
+    }
+
+    /* INDICADORES DE ROL */
+    .role-indicator {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-left: 10px;
+    }
+
+    .role-conductor {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .role-admin {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content" style="padding-top: 0;">
+    <!-- Mensajes -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {% if message.tags == 'success' %}
+                <i data-lucide="check-circle"></i>
+            {% elif message.tags == 'error' %}
+                <i data-lucide="alert-circle"></i>
+            {% else %}
+                <i data-lucide="info"></i>
+            {% endif %}
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="hero-container">
+        <div class="hero-left"></div>
+        
+        <div class="hero-right">
+            <h1 class="hero-title">CheckTransit</h1>
+            <p class="hero-subtitle">
+                ¡Bienvenido, <strong>{{ user.username }}</strong>! 
+                <span class="role-indicator role-{{ user.userprofile.rol }}">
+                    {{ user.userprofile.rol|capfirst }}
+                </span>
+                <br>
+                Gestiona tus tareas y documentos de forma eficiente y profesional.
+            </p>
+
+            <div class="navigation-sections">
+                <a href="{% url 'task_list' %}" class="nav-section hover-lift">
+                    <div class="nav-section-icon">
+                        <i data-lucide="check-square"></i>
+                    </div>
+                    <div class="nav-section-text">
+                        <h2 class="nav-section-title">Mis Tareas</h2>
+                        <p class="nav-section-description">Organiza y gestiona tus pendientes diarios</p>
+                    </div>
+                </a>
+
+                
+                <a href="{% url 'registrar_conductor' %}" class="nav-section hover-lift">
+                    <div class="nav-section-icon">
+                        <i data-lucide="user-plus"></i>
+                    </div>
+                    <div class="nav-section-text">
+                        <h2 class="nav-section-title">Registrar Conductor</h2>
+                        <p class="nav-section-description">Agrega un nuevo perfil de conductor</p>
+                    </div>
+                </a>
+                
+
+                <a href="{% url 'subir_documento' %}" class="nav-section hover-lift">
+                    <div class="nav-section-icon">
+                        <i data-lucide="file-plus"></i>
+                    </div>
+                    <div class="nav-section-text">
+                        <h2 class="nav-section-title">Subir Documentos</h2>
+                        <p class="nav-section-description">Licencias, SOAT, RTM y más documentos</p>
+                    </div>
+                </a>
+
+                {% if user.userprofile.rol == 'conductor' %}
+                <a href="{% url 'gestionar_solicitudes' %}" class="nav-section hover-lift">
+                    <div class="nav-section-icon">
+                        <i data-lucide="inbox"></i>
+                    </div>
+                    <div class="nav-section-text">
+                        <h2 class="nav-section-title">Gestionar Solicitudes</h2>
+                        <p class="nav-section-description">Revisa y responde a solicitudes pendientes</p>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="hero-footer">
+                <p><strong>Empresa:</strong> <span class="company-name">CheckTransit</span></p>
+                <p><strong>Desarrollado por:</strong> Daniel González, Thomas Gracia y Kevin Moreno</p>
+                <p><strong>SENA | ADSI</strong> &copy; 2025</p>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animación de entrada escalonada para las secciones
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = document.querySelectorAll('.nav-section');
+        sections.forEach((section, index) => {
+            section.style.animationDelay = `${index * 0.2}s`;
+            section.style.animation = 'fadeInUp 0.8s ease-out forwards';
+        });
+
+        // Auto-ocultar mensajes después de 5 segundos
+        const messages = document.querySelectorAll('.message');
+        messages.forEach(message => {
+            setTimeout(() => {
+                message.style.opacity = '0';
+                message.style.transform = 'translateX(100px)';
+                setTimeout(() => {
+                    message.remove();
+                }, 300);
+            }, 5000);
+        });
+    });
+
+    // Efecto de partículas sutil en el hero-left
+    function createParticles() {
+        const heroLeft = document.querySelector('.hero-left');
+        if (!heroLeft) return;
+
+        for (let i = 0; i < 5; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                background: var(--primary);
+                border-radius: 50%;
+                opacity: 0.7;
+                animation: float ${3 + Math.random() * 2}s ease-in-out infinite;
+                top: ${Math.random() * 100}%;
+                left: ${Math.random() * 100}%;
+            `;
+            heroLeft.appendChild(particle);
+        }
+    }
+
+    // Ejecutar cuando la página esté completamente cargada
+    window.addEventListener('load', createParticles);
+
+    // Efecto hover dinámico en las secciones
+    document.querySelectorAll('.nav-section').forEach(section => {
+        section.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+
+        section.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+</script>
+{% endblock %}

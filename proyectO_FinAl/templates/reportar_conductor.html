@@ -1,0 +1,382 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reportar Conductor</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+
+        /* VARIABLES */
+        :root {
+            --primary: #ffffff;
+            --accent: #e0e0e0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-dark: #000000;
+            --bg-deep: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --hover-bg: rgba(255, 255, 255, 0.15);
+            --text-muted: #888;
+            --text-color: #ffffff;
+            --border-color: #333;
+            --shadow-glow: rgba(255, 255, 255, 0.2);
+        }
+
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CUERPO */
+        body {
+            font-family: monospace;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-dark), var(--bg-deep));
+            color: var(--text-color);
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.01) 0%, transparent 70%);
+            pointer-events: none;
+            animation: backgroundPulse 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* TÍTULO */
+        h2 {
+            font-family: 'Satisfy', cursive;
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-align: center;
+            text-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6), 
+                0 0 30px rgba(255, 255, 255, 0.4),
+                0 0 45px rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            letter-spacing: 1px;
+        }
+
+        /* CONTENEDOR FORMULARIO */
+        form {
+            background: var(--glass-bg);
+            padding: 40px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transition: all 0.4s ease;
+        }
+
+        form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            border-radius: 25px;
+            pointer-events: none;
+        }
+
+        form::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #666, #999, #ccc, #666);
+            border-radius: 25px;
+            z-index: -1;
+            animation: borderRotate 8s linear infinite;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ETIQUETAS */
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* TEXTAREA */
+        textarea {
+            width: 100%;
+            padding: 20px;
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--primary);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            resize: vertical;
+            min-height: 150px;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(26, 26, 26, 0.9);
+            box-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.2),
+                0 0 40px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* BOTÓN */
+        button {
+            background: linear-gradient(135deg, #f5f5f5, #d8d8d8);
+            color: #000;
+            padding: 18px 35px;
+            margin-top: 25px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: 1px;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #ffffff, #e8e8e8);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.3),
+                0 0 25px rgba(255, 255, 255, 0.4),
+                0 0 50px rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(-1px) scale(1.01);
+        }
+
+        /* ENLACE VOLVER */
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            font-family: monospace;
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .back-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            text-shadow: 0 0 12px rgba(224, 224, 224, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-link:hover::before {
+            left: 100%;
+        }
+
+        /* INFORMACIÓN DEL CONDUCTOR */
+        .conductor-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .conductor-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .conductor-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ANIMACIONES */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 
+                    0 0 15px rgba(255, 255, 255, 0.6), 
+                    0 0 30px rgba(255, 255, 255, 0.4),
+                    0 0 45px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 0.8), 
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    0 0 60px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            form {
+                padding: 30px 20px;
+            }
+            
+            button {
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>🚨 Reportar Conductor</h2>
+        
+        <div class="conductor-info">
+            <h3>{{ conductor.user.username }}</h3>
+            <p>Vas a enviar un reporte sobre este conductor</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="motivo">Describe el motivo del reporte:</label>
+            <textarea name="motivo" id="motivo" rows="6" required 
+                      placeholder="Por favor, proporciona detalles específicos sobre el incidente o comportamiento que deseas reportar. Incluye fecha, hora y contexto si es posible."></textarea>
+            <button type="submit">🚨 Enviar Reporte</button>
+        </form>
+
+        <a href="{% url 'vista_cliente' %}" class="back-link">⬅️ Volver a búsqueda</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Validadores - CheckTransit</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        :root {
+            --primary: #00e6cc;
+            --secondary: #0099ff;
+            --accent: #ff0080;
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background: var(--warning);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .solicitud-card {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .solicitud-card:last-child {
+            border-bottom: none;
+        }
+
+        .solicitud-card:hover {
+            background: rgba(0, 230, 204, 0.02);
+        }
+
+        .solicitud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .solicitud-info h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .solicitud-meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .solicitud-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approve {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-reject {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+            color: var(--bg-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .procesados {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .procesado-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .procesado-item:last-child {
+            border-bottom: none;
+        }
+
+        .procesado-info {
+            flex: 1;
+        }
+
+        .procesado-info h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .procesado-meta {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .estado-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .estado-aprobado {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .estado-rechazado {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        /* Modal para rechazar */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .solicitud-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .solicitud-actions {
+                align-self: stretch;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div>
+            <h1>
+                <i data-lucide="user-plus"></i>
+                Gestionar Validadores
+            </h1>
+            <div class="breadcrumb">
+                <a href="{% url 'panel_administrador' %}">Panel Admin</a>
+                <i data-lucide="chevron-right"></i>
+                <span>Gestionar Validadores</span>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'panel_administrador' %}" class="btn btn-back">
+                <i data-lucide="arrow-left"></i>
+                Volver al Panel
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <div class="messages" style="margin-bottom: 2rem;">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags }}" style="padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.1); color: var(--success){% elif message.tags == 'error' %}rgba(239, 68, 68, 0.1); color: var(--error){% else %}rgba(0, 153, 255, 0.1); color: var(--secondary){% endif %};">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Solicitudes Pendientes -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i data-lucide="clock"></i>
+                    Solicitudes Pendientes
+                    {% if registros_pendientes %}
+                        <span class="badge">{{ registros_pendientes|length }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if registros_pendientes %}
+                {% for registro in registros_pendientes %}
+                    <div class="solicitud-card">
+                        <div class="solicitud-header">
+                            <div class="solicitud-info">
+                                <h3>{{ registro.username }}</h3>
+                                <div class="solicitud-meta">
+                                    <div><strong>Email:</strong> {{ registro.email }}</div>
+                                    <div><strong>Rol solicitado:</strong> {{ registro.rol_solicitado|capfirst }}</div>
+                                    <div><strong>Fecha de solicitud:</strong> {{ registro.fecha_solicitud|date:"d/m/Y H:i" }}</div>
+                                </div>
+                            </div>
+                            <div class="solicitud-actions">
+                                <form method="POST" action="{% url 'procesar_solicitud_validador' registro.id 'aprobar' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-approve" onclick="return confirm('¿Aprobar esta solicitud de validador?')">
+                                        <i data-lucide="check"></i>
+                                        Aprobar
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-reject" onclick="openRejectModal({{ registro.id }}, '{{ registro.username }}')">
+                                    <i data-lucide="x"></i>
+                                    Rechazar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i data-lucide="check-circle"></i>
+                    <h3>No hay solicitudes pendientes</h3>
+                    <p>Todas las solicitudes de validadores han sido procesadas.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Solicitudes Procesadas Recientemente -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i data-lucide="history"></i>
+                    Procesadas Recientemente
+                </div>
+            </div>
+
+            {% if registros_procesados %}
+                <div class="procesados">
+                    {% for registro in registros_procesados %}
+                        <div class="procesado-item">
+                            <div class="procesado-info">
+                                <h4>{{ registro.username }}</h4>
+                                <div class="procesado-meta">
+                                    {{ registro.fecha_decision|date:"d/m/Y H:i" }} por {{ registro.decidido_por.username }}
+                                    {% if registro.razon_rechazo %}
+                                        <br><strong>Razón:</strong> {{ registro.razon_rechazo }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <span class="estado-badge estado-{{ registro.estado }}">
+                                {{ registro.estado|capfirst }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i data-lucide="inbox"></i>
+                    <p>No hay registros procesados recientemente.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal para rechazar -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Rechazar Solicitud</h2>
+                <button type="button" class="close" onclick="closeRejectModal()">&times;</button>
+            </div>
+            <form id="rejectForm" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="razon_rechazo">Razón del rechazo:</label>
+                    <textarea id="razon_rechazo" name="razon_rechazo" placeholder="Explica por qué se rechaza esta solicitud..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-back" onclick="closeRejectModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-reject">
+                        <i data-lucide="x"></i>
+                        Rechazar Solicitud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        function openRejectModal(registroId, username) {
+            const modal = document.getElementById('rejectModal');
+            const form = document.getElementById('rejectForm');
+            const title = document.querySelector('.modal-title');
+            
+            title.textContent = `Rechazar Solicitud de ${username}`;
+            form.action = `/admin/procesar-solicitud/${registroId}/rechazar/`;
+            modal.style.display = 'block';
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            modal.style.display = 'none';
+            document.getElementById('razon_rechazo').value = '';
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('rejectModal');
+            if (event.target == modal) {
+                closeRejectModal();
+            }
+        }
+    </script>
+</body>
+</html>
